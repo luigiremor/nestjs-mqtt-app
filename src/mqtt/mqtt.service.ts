@@ -1,10 +1,13 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as mqtt from 'mqtt';
 
 @Injectable()
 export class MqttService implements OnModuleInit {
   private client: mqtt.MqttClient;
   private readonly logger = new Logger(MqttService.name);
+
+  constructor(private eventEmitter: EventEmitter2) {}
 
   onModuleInit() {
     this.connect();
@@ -16,7 +19,7 @@ export class MqttService implements OnModuleInit {
 
     this.client.on('connect', () => {
       this.logger.log('Conectado ao broker MQTT');
-      // Subscriba em tópicos se necessário
+      // Subscreva em tópicos iniciais, se necessário
       // this.subscribe('seu/topico');
     });
 
@@ -28,7 +31,11 @@ export class MqttService implements OnModuleInit {
       this.logger.log(
         `Mensagem recebida - Tópico: ${topic}, Mensagem: ${message.toString()}`,
       );
-      // Processar a mensagem conforme necessário
+      // Emitir um evento com os dados recebidos
+      this.eventEmitter.emit('sensor.data', {
+        topic,
+        message: message.toString(),
+      });
     });
   }
 
