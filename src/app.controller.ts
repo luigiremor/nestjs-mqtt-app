@@ -1,5 +1,5 @@
+import { MqttService } from '@/mqtt/mqtt.service';
 import { Controller, Get } from '@nestjs/common';
-import { MqttService } from './mqtt/mqtt.service';
 
 @Controller()
 export class AppController {
