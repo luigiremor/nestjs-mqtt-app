@@ -1,34 +1,42 @@
-import { CreateSensorDto } from '@/sensor/dto/create-sensor.dto';
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateSensorDto } from './dto/create-sensor.dto';
 import { OnEvent } from '@nestjs/event-emitter';
+import { Sensor } from '@/sensor/entities/sensor.entity';
 
 @Injectable()
 export class SensorService {
   private readonly logger = new Logger(SensorService.name);
-  private sensorData: CreateSensorDto[] = [];
 
-  handleSensorData(data: CreateSensorDto) {
-    this.sensorData.push(data);
-    this.logger.log(`Dados do sensor recebidos: ${JSON.stringify(data)}`);
-    // Aqui você pode adicionar lógica para armazenar os dados em um banco de dados
+  constructor(
+    @InjectRepository(Sensor)
+    private readonly sensorRepository: Repository<Sensor>,
+  ) {}
+
+  async handleSensorData(data: CreateSensorDto): Promise<void> {
+    const sensorData = this.sensorRepository.create(data);
+    await this.sensorRepository.save(sensorData);
+    this.logger.log(`Dados do sensor salvos: ${JSON.stringify(sensorData)}`);
   }
 
-  getAllSensorData(): CreateSensorDto[] {
-    return this.sensorData;
+  async getAllSensorData(): Promise<Sensor[]> {
+    return this.sensorRepository.find({ order: { timestamp: 'DESC' } });
   }
 
   @OnEvent('sensor.data')
-  handleSensorDataEvent(payload: { topic: string; message: string }) {
+  async handleSensorDataEvent(payload: { topic: string; message: string }) {
     const { message } = payload;
-    // Supondo que a mensagem seja um JSON com temperatura e umidade
+
+    this.logger.log('Mensagem recebida:', message);
+
     try {
       const parsed = JSON.parse(message);
       const sensorData: CreateSensorDto = {
         temperature: parsed.temperature,
         humidity: parsed.humidity,
-        timestamp: new Date(),
       };
-      this.handleSensorData(sensorData);
+      await this.handleSensorData(sensorData);
     } catch (error) {
       this.logger.error('Erro ao parsear dados do sensor:', error);
     }
