@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { MqttModule } from './mqtt/mqtt.module';
 import { SensorModule } from './sensor/sensor.module';
 import { Sensor } from './sensor/entities/sensor.entity';
+import { RelayModule } from './relay/relay.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { Sensor } from './sensor/entities/sensor.entity';
     TypeOrmModule.forFeature([Sensor]),
     MqttModule,
     SensorModule,
+    RelayModule,
   ],
   controllers: [AppController],
   providers: [AppService],
