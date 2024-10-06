@@ -86,7 +86,7 @@ void reconnect() {
   while (!client.connected()) {
     Serial.print("Tentando conexão MQTT...");
     // Tente se conectar
-    if (client.connect("trabalho_trans")) { // ID do cliente alterado para 'trabalho_trans'
+    if (client.connect("trabalho_trans")) {
       Serial.println("conectado");
       // Subscreva em tópicos, se necessário
       client.subscribe("acionar/reles");
