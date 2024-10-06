@@ -1,4 +1,5 @@
 import { MqttService } from '@/mqtt/mqtt.service';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 
 describe('MqttService', () => {
@@ -6,6 +7,7 @@ describe('MqttService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [EventEmitterModule.forRoot()],
       providers: [MqttService],
     }).compile();
 
