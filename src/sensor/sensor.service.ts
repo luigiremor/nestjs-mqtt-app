@@ -1,9 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateSensorDto } from './dto/create-sensor.dto';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Sensor } from '@/sensor/entities/sensor.entity';
+import { SensorGateway } from '@/sensor/sensor.gateway';
 
 @Injectable()
 export class SensorService {
@@ -12,12 +13,16 @@ export class SensorService {
   constructor(
     @InjectRepository(Sensor)
     private readonly sensorRepository: Repository<Sensor>,
+    @Inject(forwardRef(() => SensorGateway))
+    private readonly sensorGateway: SensorGateway,
   ) {}
 
   async handleSensorData(data: CreateSensorDto): Promise<void> {
     const sensorData = this.sensorRepository.create(data);
     await this.sensorRepository.save(sensorData);
     this.logger.log(`Dados do sensor salvos: ${JSON.stringify(sensorData)}`);
+
+    this.sensorGateway.broadcastSensorData(sensorData);
   }
 
   async getAllSensorData(): Promise<Sensor[]> {
@@ -40,5 +45,13 @@ export class SensorService {
     } catch (error) {
       this.logger.error('Erro ao parsear dados do sensor:', error);
     }
+  }
+
+  async getLastSensorData(limit: number): Promise<Sensor[]> {
+    const sanitizedLimit = Math.max(1, limit);
+    return await this.sensorRepository.find({
+      order: { timestamp: 'DESC' },
+      take: sanitizedLimit,
+    });
   }
 }

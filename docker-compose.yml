@@ -33,6 +33,7 @@ services:
     restart: always
     ports:
       - "${APP_PORT}:3000"
+      - "3001:3001"
     environment:
       NODE_ENV: development
       POSTGRES_HOST: ${POSTGRES_HOST}
