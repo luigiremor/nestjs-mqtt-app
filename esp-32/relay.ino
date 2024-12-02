@@ -10,11 +10,11 @@
 #define RELAY4_PIN 18
 
 // Configurações de WiFi
-const char* ssid = "Calico"; // Substitua pelo nome da sua rede
-const char* password = "computaria"; // Substitua pela senha da sua rede
+const char* ssid = "ZAIA"; // Substitua pelo nome da sua rede
+const char* password = "zaiazaia"; // Substitua pela senha da sua rede
 
 // Configurações do MQTT
-const char* mqtt_server = "192.168.1.102"; // Substitua pelo IP do seu broker MQTT
+const char* mqtt_server = "192.168.0.240"; // Substitua pelo IP do seu broker MQTT
 const int mqtt_port = 1883; // Porta padrão do MQTT
 
 WiFiClient espClient;
@@ -86,7 +86,7 @@ void reconnect() {
   while (!client.connected()) {
     Serial.print("Tentando conexão MQTT...");
     // Tente se conectar
-    if (client.connect("trabalho_trans")) {
+    if (client.connect("trabalho_trans")) { 
       Serial.println("conectado");
       // Subscreva em tópicos, se necessário
       client.subscribe("acionar/reles");
